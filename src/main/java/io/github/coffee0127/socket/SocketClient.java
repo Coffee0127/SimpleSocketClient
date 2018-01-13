@@ -37,6 +37,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
@@ -67,6 +68,7 @@ public class SocketClient extends Application {
         Scene scene = new Scene(root, 450, 450);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Socket Client");
+        primaryStage.getIcons().add(new Image(Thread.currentThread().getContextClassLoader().getResourceAsStream("favicon.png")));
         primaryStage.show();
     }
 
