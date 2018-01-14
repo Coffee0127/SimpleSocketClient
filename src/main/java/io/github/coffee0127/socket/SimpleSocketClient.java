@@ -174,7 +174,7 @@ public class SimpleSocketClient extends Application {
 
                     BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream(), reqEncodingOption.getValue()));
                     String response = br.readLine();
-                    console.setText(log(DEBUG_LEVEL, String.format("Response=", response)) + console.getText());
+                    console.setText(log(DEBUG_LEVEL, String.format("Response=%s", response)) + console.getText());
                     resData.setText(response);
 
                     pw.close();
