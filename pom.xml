@@ -13,7 +13,7 @@
         <url>https://github.com/Coffee0127/SimpleSocketClient</url>
         <connection>scm:git:https://github.com/Coffee0127/SimpleSocketClient.git</connection>
         <developerConnection>scm:git:https://github.com/Coffee0127/SimpleSocketClient.git</developerConnection>
-      <tag>HEAD</tag>
+        <tag>HEAD</tag>
   </scm>
 
     <build>
@@ -21,6 +21,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
                 <configuration>
                     <encoding>${project.build.sourceEncoding}</encoding>
                     <source>${java.version}</source>
