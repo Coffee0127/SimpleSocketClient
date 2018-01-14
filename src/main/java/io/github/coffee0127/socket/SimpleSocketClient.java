@@ -53,7 +53,7 @@ import javafx.stage.Stage;
  * @since 2018-01-07
  * @author Bo-Xuan Fan
  */
-public class SocketClient extends Application {
+public class SimpleSocketClient extends Application {
 
     private static final String DEBUG_LEVEL = "[DEBUG] - ";
     private static final String ERROR_LEVEL = "[ERROR] - ";

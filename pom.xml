@@ -2,7 +2,7 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.github.coffee0127</groupId>
-    <artifactId>SocketClient</artifactId>
+    <artifactId>SimpleSocketClient</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
     <properties>
@@ -29,7 +29,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>io.github.coffee0127.socket.SocketClient</mainClass>
+                            <mainClass>io.github.coffee0127.socket.SimpleSocketClient</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
