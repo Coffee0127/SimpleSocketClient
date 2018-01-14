@@ -25,6 +25,7 @@ package io.github.coffee0127.socket;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.Socket;
@@ -34,9 +35,11 @@ import java.time.format.DateTimeFormatter;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -45,6 +48,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 /**
@@ -57,10 +61,14 @@ public class SimpleSocketClient extends Application {
 
     private static final String DEBUG_LEVEL = "[DEBUG] - ";
     private static final String ERROR_LEVEL = "[ERROR] - ";
+    private static final String[] availableEncodings = { "UTF-8", "Big5" };
+
     private TextField port;
     private TextField ip;
     private TextArea reqData;
+    private ComboBox<String> reqEncodingOption;
     private TextArea resData;
+    private ComboBox<String> resEncodingOption;
     private TextArea console;
 
     public static void main(String[] args) {
@@ -83,7 +91,7 @@ public class SimpleSocketClient extends Application {
     private GridPane addGridPane() {
         GridPane gridPane = new GridPane();
         gridPane.add(new Label("IP"), 0, 0);
-        gridPane.getColumnConstraints().add(new ColumnConstraints(70));
+        gridPane.getColumnConstraints().add(new ColumnConstraints(80));
         gridPane.getRowConstraints().add(new RowConstraints());
         ip = new TextField();
         gridPane.add(ip, 1, 0);
@@ -112,14 +120,24 @@ public class SimpleSocketClient extends Application {
         });
         gridPane.add(port, 1, 1);
 
-        gridPane.add(new Label("Request："), 0, 2);
+        VBox hbox = new VBox();
+        hbox.setSpacing(5);
+        reqEncodingOption = new ComboBox<>(FXCollections.observableArrayList(availableEncodings));
+        reqEncodingOption.setValue(availableEncodings[0]);
+        hbox.getChildren().addAll(new Label("Request："), reqEncodingOption);
+        gridPane.add(hbox, 0, 2);
         gridPane.getRowConstraints().add(new RowConstraints(150));
         reqData = new TextArea();
         reqData.setPrefWidth(350);
         reqData.setWrapText(true);
         gridPane.add(reqData, 1, 2);
 
-        gridPane.add(new Label("Response："), 0, 3);
+        hbox = new VBox();
+        hbox.setSpacing(5);
+        resEncodingOption = new ComboBox<>(FXCollections.observableArrayList(availableEncodings));
+        resEncodingOption.setValue(availableEncodings[0]);
+        hbox.getChildren().addAll(new Label("Response："), resEncodingOption);
+        gridPane.add(hbox, 0, 3);
         gridPane.getRowConstraints().add(new RowConstraints(150));
         resData = new TextArea();
         resData.setPrefWidth(350);
@@ -149,11 +167,11 @@ public class SimpleSocketClient extends Application {
                 try {
                     Socket socket = new Socket(ip.getText(), Integer.parseInt(port.getText()));
 
-                    PrintWriter pw = new PrintWriter(socket.getOutputStream());
+                    PrintWriter pw = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), reqEncodingOption.getValue()));
                     pw.println(reqData.getText());
                     pw.flush();
 
-                    BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
+                    BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream(), reqEncodingOption.getValue()));
                     String response = br.readLine();
                     console.setText(log(DEBUG_LEVEL, String.format("Response=", response)) + console.getText());
                     resData.setText(response);
