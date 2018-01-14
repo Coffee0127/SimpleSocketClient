@@ -26,7 +26,10 @@ package io.github.coffee0127.socket;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.Socket;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
@@ -39,6 +42,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
 import javafx.stage.Stage;
@@ -51,10 +55,13 @@ import javafx.stage.Stage;
  */
 public class SocketClient extends Application {
 
+    private static final String DEBUG_LEVEL = "[DEBUG] - ";
+    private static final String ERROR_LEVEL = "[ERROR] - ";
     private TextField port;
     private TextField ip;
     private TextArea reqData;
     private TextArea resData;
+    private TextArea console;
 
     public static void main(String[] args) {
         launch(args);
@@ -65,9 +72,10 @@ public class SocketClient extends Application {
         BorderPane root = new BorderPane();
         root.setCenter(addGridPane());
 
-        Scene scene = new Scene(root, 450, 450);
+        Scene scene = new Scene(root, 750, 450);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Socket Client");
+        primaryStage.setResizable(false);
         primaryStage.getIcons().add(new Image(Thread.currentThread().getContextClassLoader().getResourceAsStream("favicon.png")));
         primaryStage.show();
     }
@@ -75,10 +83,13 @@ public class SocketClient extends Application {
     private GridPane addGridPane() {
         GridPane gridPane = new GridPane();
         gridPane.add(new Label("IP"), 0, 0);
+        gridPane.getColumnConstraints().add(new ColumnConstraints(70));
         gridPane.getRowConstraints().add(new RowConstraints());
         ip = new TextField();
         gridPane.add(ip, 1, 0);
-        gridPane.add(new Label("Port"), 0, 1);
+        gridPane.getColumnConstraints().add(new ColumnConstraints(250));
+
+        gridPane.add(new Label("Port："), 0, 1);
         gridPane.getRowConstraints().add(new RowConstraints());
         port = new TextField();
         port.setText("35000");
@@ -100,20 +111,27 @@ public class SocketClient extends Application {
             }
         });
         gridPane.add(port, 1, 1);
-        gridPane.add(new Label("Request"), 0, 2);
+
+        gridPane.add(new Label("Request："), 0, 2);
         gridPane.getRowConstraints().add(new RowConstraints(150));
         reqData = new TextArea();
         reqData.setPrefWidth(350);
         reqData.setWrapText(true);
         gridPane.add(reqData, 1, 2);
-        gridPane.add(new Label("Response"), 0, 3);
+
+        gridPane.add(new Label("Response："), 0, 3);
         gridPane.getRowConstraints().add(new RowConstraints(150));
         resData = new TextArea();
         resData.setPrefWidth(350);
         resData.setPrefRowCount(10);
         resData.setWrapText(true);
         gridPane.add(resData, 1, 3);
+
         gridPane.add(addButton(), 1, 4);
+
+        gridPane.add(new Label("Debug Console Output："), 2, 0);
+        console = new TextArea();
+        gridPane.add(console, 2, 1, 1, 3);
 
         gridPane.setPadding(new Insets(20, 10, 20, 10));
         gridPane.setHgap(15);
@@ -125,25 +143,41 @@ public class SocketClient extends Application {
         Button btn = new Button();
         btn.setText("GO! ヾ( ⁰ д ⁰)ﾉ");
         btn.setOnAction(event -> {
-            try {
-                System.out.println(String.format("IP=%s\nPort=%s\nData=%s", ip.getText(), port.getText(), reqData.getText()));
-                Socket socket = new Socket(ip.getText(), Integer.parseInt(port.getText()));
+            console.setText(log(DEBUG_LEVEL, String.format("IP=%s, Port=%s, Request=%s", ip.getText(), port.getText(), reqData.getText())) + console.getText());
 
-                PrintWriter pw = new PrintWriter(socket.getOutputStream());
-                pw.println(reqData.getText());
-                pw.flush();
+            new Thread(() -> {
+                try {
+                    Socket socket = new Socket(ip.getText(), Integer.parseInt(port.getText()));
 
-                BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
-                resData.setText(br.readLine());
+                    PrintWriter pw = new PrintWriter(socket.getOutputStream());
+                    pw.println(reqData.getText());
+                    pw.flush();
 
-                pw.close();
-                br.close();
-                socket.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+                    BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
+                    String response = br.readLine();
+                    console.setText(log(DEBUG_LEVEL, String.format("Response=", response)) + console.getText());
+                    resData.setText(response);
+
+                    pw.close();
+                    br.close();
+                    socket.close();
+                } catch (Exception e) {
+                    StringWriter sw = new StringWriter();
+                    e.printStackTrace(new PrintWriter(sw));
+                    console.setText(log(ERROR_LEVEL, sw.toString()) + console.getText());
+                }
+            }).start();
         });
 
         return btn;
+    }
+
+    private String log(String level, String message) {
+        return new StringBuilder()
+                .append(DateTimeFormatter.ofPattern("HH:mm:ss").format(LocalDateTime.now())).append(' ')
+                .append(level)
+                .append(message)
+                .append(System.lineSeparator())
+                .toString();
     }
 }
