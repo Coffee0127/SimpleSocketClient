@@ -149,6 +149,7 @@ public class SimpleSocketClient extends Application {
 
         gridPane.add(new Label("Debug Console Output："), 2, 0);
         console = new TextArea();
+        console.setEditable(false);
         gridPane.add(console, 2, 1, 1, 3);
 
         gridPane.setPadding(new Insets(20, 10, 20, 10));
@@ -182,7 +183,9 @@ public class SimpleSocketClient extends Application {
                 } catch (Exception e) {
                     StringWriter sw = new StringWriter();
                     e.printStackTrace(new PrintWriter(sw));
-                    console.setText(log(ERROR_LEVEL, sw.toString()) + console.getText());
+                    StringBuilder stackTrace = new StringBuilder(sw.toString());
+                    stackTrace.setLength(stackTrace.length() - 1);
+                    console.setText(log(ERROR_LEVEL, stackTrace.toString()) + console.getText());
                 }
             }).start();
         });
